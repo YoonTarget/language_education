@@ -51,6 +51,17 @@ export default function HomeScreen({ navigation }: Props) {
           onQuiz={() => navigation.navigate('SoundMatching', { stage: 2 })}
         />
 
+        <StageCard
+          stage={3}
+          title="3단계 · 받침 글자"
+          chars="밥 물 약 집 문 방 길 손 발 밤"
+          color="#2E7D32"
+          reviewStatus={progress?.stageReviews?.['3']}
+          onLearn={() => navigation.navigate('Learn', { stage: 3 })}
+          onPractice={() => navigation.navigate('Practice', { stage: 3 })}
+          onQuiz={() => navigation.navigate('SoundMatching', { stage: 3 })}
+        />
+
         <Text style={[styles.sectionLabel, { marginTop: spacing.lg }]}>게임</Text>
 
         <TouchableOpacity
@@ -71,7 +82,7 @@ export default function HomeScreen({ navigation }: Props) {
 }
 
 type StageCardProps = {
-  stage: number;
+  stage: 1 | 2 | 3;
   title: string;
   chars: string;
   color: string;

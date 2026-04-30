@@ -5,7 +5,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { colors, fontSize, spacing } from '../theme';
-import { stage1, stage2, allSyllables, SyllableItem, getDistractors, shuffle } from '../curriculum/data';
+import { stage1, stage2, stage3, allSyllables, SyllableItem, getDistractors, shuffle } from '../curriculum/data';
 import { speak } from '../utils/speech';
 import { loadProgress, saveProgress, calcNextReview } from '../utils/storage';
 import { RootStackParamList } from '../../App';
@@ -21,7 +21,7 @@ type AnswerState = 'idle' | 'correct' | 'wrong';
 
 export default function SoundMatchingScreen({ navigation, route }: Props) {
   const { stage } = route.params;
-  const pool = stage === 1 ? stage1 : stage === 2 ? stage2 : allSyllables;
+  const pool = stage === 1 ? stage1 : stage === 2 ? stage2 : stage3;
   const [questions] = useState(() => shuffle(pool).slice(0, Math.min(TOTAL_QUESTIONS, pool.length)));
   const [current, setCurrent] = useState(0);
   const [options, setOptions] = useState<SyllableItem[]>([]);
@@ -80,11 +80,12 @@ export default function SoundMatchingScreen({ navigation, route }: Props) {
   useEffect(() => {
     if (finished) {
       loadProgress().then(p => {
-        const stageKey = String(stage) as '1' | '2';
+        const stageKey = String(stage) as '1' | '2' | '3';
         const review = calcNextReview(score, questions.length, p.stageReviews[stageKey]);
         saveProgress({
           soundMatchingBest: Math.max(score, p.soundMatchingBest),
-          stage2Unlocked: p.stage2Unlocked || score >= 7,
+          stage2Unlocked: p.stage2Unlocked || (stage === 1 && score >= 7),
+          stage3Unlocked: p.stage3Unlocked || (stage === 2 && score >= 7),
           stageReviews: { ...p.stageReviews, [stageKey]: review },
         });
       });
@@ -92,7 +93,7 @@ export default function SoundMatchingScreen({ navigation, route }: Props) {
   }, [finished, score, stage, questions.length]);
 
   if (finished) {
-    return <ResultScreen score={score} total={TOTAL_QUESTIONS} onHome={() => navigation.goBack()} onRetry={() => navigation.replace('SoundMatching', { stage: 1 })} />;
+    return <ResultScreen score={score} total={TOTAL_QUESTIONS} onHome={() => navigation.goBack()} onRetry={() => navigation.replace('SoundMatching', { stage })} />;
   }
 
   const target = questions[current];

@@ -5,7 +5,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { colors, fontSize, spacing } from '../theme';
-import { stage1, stage2 } from '../curriculum/data';
+import { stage1, stage2, stage3 } from '../curriculum/data';
 import { speak } from '../utils/speech';
 import { RootStackParamList } from '../../App';
 
@@ -14,7 +14,7 @@ type Props = {
   route: RouteProp<RootStackParamList, 'Practice'>;
 };
 
-const stageData = { 1: stage1, 2: stage2 };
+const stageData = { 1: stage1, 2: stage2, 3: stage3 };
 
 export default function PracticeScreen({ navigation, route }: Props) {
   const { stage } = route.params;
@@ -22,7 +22,6 @@ export default function PracticeScreen({ navigation, route }: Props) {
 
   const [tapCount, setTapCount] = useState<Record<string, number>>({});
   const practisedAll = items.every(item => (tapCount[item.char] ?? 0) > 0);
-  const totalTaps = Object.values(tapCount).reduce((a, b) => a + b, 0);
 
   const handleTap = useCallback((char: string) => {
     speak(char);
@@ -38,7 +37,9 @@ export default function PracticeScreen({ navigation, route }: Props) {
         <Text style={styles.stageLabel}>{stage}단계 · 연습</Text>
       </View>
 
-      <Text style={styles.instruction}>글자를 눌러서 소리를 들어보세요</Text>
+      <Text style={styles.instruction}>
+        {stage === 3 ? '그림을 눌러서 소리를 들어보세요' : '글자를 눌러서 소리를 들어보세요'}
+      </Text>
       <Text style={styles.subInstruction}>모든 글자를 한 번씩 눌러보면 퀴즈가 열려요</Text>
 
       <ScrollView contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false}>
@@ -46,6 +47,7 @@ export default function PracticeScreen({ navigation, route }: Props) {
           <PracticeCard
             key={item.char}
             char={item.char}
+            emoji={item.emoji}
             count={tapCount[item.char] ?? 0}
             onPress={handleTap}
           />
@@ -76,11 +78,12 @@ export default function PracticeScreen({ navigation, route }: Props) {
 
 type PracticeCardProps = {
   char: string;
+  emoji?: string;
   count: number;
   onPress: (char: string) => void;
 };
 
-function PracticeCard({ char, count, onPress }: PracticeCardProps) {
+function PracticeCard({ char, emoji, count, onPress }: PracticeCardProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const tapped = count > 0;
 
@@ -91,6 +94,22 @@ function PracticeCard({ char, count, onPress }: PracticeCardProps) {
     ]).start();
     onPress(char);
   }, [char, onPress, scaleAnim]);
+
+  if (emoji) {
+    return (
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <TouchableOpacity
+          style={[styles.cardLarge, tapped && styles.cardTapped]}
+          onPress={handlePress}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.cardEmoji}>{emoji}</Text>
+          <Text style={[styles.cardChar, tapped && styles.cardCharTapped]}>{char}</Text>
+          {tapped && <Text style={styles.checkMark}>✓</Text>}
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -159,6 +178,25 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+  },
+  cardLarge: {
+    width: 110,
+    height: 110,
+    borderRadius: 20,
+    backgroundColor: colors.cardBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    gap: 4,
+  },
+  cardEmoji: {
+    fontSize: 36,
   },
   cardTapped: {
     backgroundColor: '#FFF3E0',

@@ -1,13 +1,15 @@
 export type Jamo = {
-  consonant?: string;  // 자음 (stage 2만 해당)
-  vowel: string;       // 모음
+  consonant?: string;  // 초성
+  vowel: string;       // 중성
+  final?: string;      // 받침 (stage 3)
 };
 
 export type SyllableItem = {
   char: string;
   label: string;
-  stage: 1 | 2;
+  stage: 1 | 2 | 3;
   jamo: Jamo;
+  emoji?: string;      // stage 3 단어 그림
 };
 
 export type WordPair = {
@@ -47,7 +49,22 @@ export const stage2: SyllableItem[] = [
   { char: '하', label: '하', stage: 2, jamo: { consonant: 'ㅎ', vowel: 'ㅏ' } },
 ];
 
-export const allSyllables = [...stage1, ...stage2];
+// 3단계: 받침 있는 단음절 기능어 10개
+// 초성 + 중성 + 받침 구조 학습
+export const stage3: SyllableItem[] = [
+  { char: '밥', label: '밥', stage: 3, jamo: { consonant: 'ㅂ', vowel: 'ㅏ', final: 'ㅂ' }, emoji: '🍚' },
+  { char: '물', label: '물', stage: 3, jamo: { consonant: 'ㅁ', vowel: 'ㅜ', final: 'ㄹ' }, emoji: '💧' },
+  { char: '약', label: '약', stage: 3, jamo: { consonant: 'ㅇ', vowel: 'ㅏ', final: 'ㄱ' }, emoji: '💊' },
+  { char: '집', label: '집', stage: 3, jamo: { consonant: 'ㅈ', vowel: 'ㅣ', final: 'ㅂ' }, emoji: '🏠' },
+  { char: '문', label: '문', stage: 3, jamo: { consonant: 'ㅁ', vowel: 'ㅜ', final: 'ㄴ' }, emoji: '🚪' },
+  { char: '방', label: '방', stage: 3, jamo: { consonant: 'ㅂ', vowel: 'ㅏ', final: 'ㅇ' }, emoji: '🛏️' },
+  { char: '길', label: '길', stage: 3, jamo: { consonant: 'ㄱ', vowel: 'ㅣ', final: 'ㄹ' }, emoji: '🛣️' },
+  { char: '손', label: '손', stage: 3, jamo: { consonant: 'ㅅ', vowel: 'ㅗ', final: 'ㄴ' }, emoji: '✋' },
+  { char: '발', label: '발', stage: 3, jamo: { consonant: 'ㅂ', vowel: 'ㅏ', final: 'ㄹ' }, emoji: '🦶' },
+  { char: '밤', label: '밤', stage: 3, jamo: { consonant: 'ㅂ', vowel: 'ㅏ', final: 'ㅁ' }, emoji: '🌙' },
+];
+
+export const allSyllables = [...stage1, ...stage2, ...stage3];
 
 // 짝 맞추기 게임 — 기능적 문해 우선 단어
 export const wordPairs: WordPair[] = [

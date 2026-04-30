@@ -8,9 +8,10 @@ export type StageReview = {
 export type Progress = {
   stage1Unlocked: boolean;
   stage2Unlocked: boolean;
+  stage3Unlocked: boolean;
   soundMatchingBest: number;
   memoryCardBestMoves: number;
-  stageReviews: Partial<Record<'1' | '2', StageReview>>;
+  stageReviews: Partial<Record<'1' | '2' | '3', StageReview>>;
 };
 
 const KEY = 'haelmoni_progress';
@@ -18,6 +19,7 @@ const KEY = 'haelmoni_progress';
 const defaultProgress: Progress = {
   stage1Unlocked: true,
   stage2Unlocked: false,
+  stage3Unlocked: false,
   soundMatchingBest: 0,
   memoryCardBestMoves: 999,
   stageReviews: {},

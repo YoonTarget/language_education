@@ -5,7 +5,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { colors, fontSize, spacing } from '../theme';
-import { stage1, stage2, SyllableItem } from '../curriculum/data';
+import { stage1, stage2, stage3, SyllableItem } from '../curriculum/data';
 import { speak } from '../utils/speech';
 import { RootStackParamList } from '../../App';
 
@@ -14,11 +14,12 @@ type Props = {
   route: RouteProp<RootStackParamList, 'Learn'>;
 };
 
-const stageData: Record<1 | 2, SyllableItem[]> = { 1: stage1, 2: stage2 };
+const stageData: Record<1 | 2 | 3, SyllableItem[]> = { 1: stage1, 2: stage2, 3: stage3 };
 
-const stageDesc: Record<1 | 2, string> = {
+const stageDesc: Record<1 | 2 | 3, string> = {
   1: '기본 모음 — 아 야 어 여 오 요 우 유 으 이',
   2: '기본 자음 — 가 나 다 라 마 바 사 자 차 카 타 파 하',
+  3: '받침 글자 — 밥 물 약 집 문 방 길 손 발 밤',
 };
 
 export default function LearnScreen({ navigation, route }: Props) {
@@ -36,7 +37,6 @@ export default function LearnScreen({ navigation, route }: Props) {
   const playSound = useCallback(() => speak(current.char), [current.char]);
 
   useEffect(() => {
-    // 글자 등장 → 소리 재생 → 자모 분해 시각 등장
     jamoOpacity.setValue(0);
     const t1 = setTimeout(playSound, 300);
     const t2 = setTimeout(() => {
@@ -77,16 +77,26 @@ export default function LearnScreen({ navigation, route }: Props) {
 
       <View style={styles.cardArea}>
         <Animated.View style={[styles.card, { opacity: opacityAnim, transform: [{ scale: scaleAnim }] }]}>
+          {stage === 3 && current.emoji ? (
+            <Text style={styles.emoji}>{current.emoji}</Text>
+          ) : null}
+
           <Text style={styles.syllable}>{current.char}</Text>
 
-          {/* 자모 분해 시각화 */}
           <Animated.View style={[styles.jamoBox, { opacity: jamoOpacity }]}>
             {stage === 1 ? (
               <Stage1JamoView vowel={current.jamo.vowel} char={current.char} />
-            ) : (
+            ) : stage === 2 ? (
               <Stage2JamoView
                 consonant={current.jamo.consonant!}
                 vowel={current.jamo.vowel}
+                char={current.char}
+              />
+            ) : (
+              <Stage3JamoView
+                consonant={current.jamo.consonant!}
+                vowel={current.jamo.vowel}
+                final={current.jamo.final!}
                 char={current.char}
               />
             )}
@@ -169,6 +179,32 @@ function Stage2JamoView({ consonant, vowel, char }: { consonant: string; vowel: 
   );
 }
 
+function Stage3JamoView({ consonant, vowel, final, char }: { consonant: string; vowel: string; final: string; char: string }) {
+  return (
+    <View style={styles.jamoRow}>
+      <View style={styles.jamoColumn}>
+        <View style={styles.jamoBlock}>
+          <Text style={styles.jamoChar}>{consonant}</Text>
+          <Text style={styles.jamoLabel}>자음</Text>
+        </View>
+        <View style={[styles.jamoBlock, { marginTop: spacing.xs }]}>
+          <Text style={styles.jamoChar}>{vowel}</Text>
+          <Text style={styles.jamoLabel}>모음</Text>
+        </View>
+        <View style={[styles.jamoBlock, styles.jamoFinalBlock]}>
+          <Text style={styles.jamoChar}>{final}</Text>
+          <Text style={styles.jamoLabel}>받침</Text>
+        </View>
+      </View>
+      <Text style={styles.jamoEquals}>=</Text>
+      <View style={[styles.jamoBlock, styles.jamoResult]}>
+        <Text style={[styles.jamoChar, styles.jamoResultChar]}>{char}</Text>
+        <Text style={styles.jamoLabel}>글자</Text>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   topBar: {
@@ -197,6 +233,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 16,
     shadowOffset: { width: 0, height: 4 }, elevation: 4,
   },
+  emoji: { fontSize: 56 },
   syllable: { fontSize: fontSize.syllableHero, fontWeight: 'bold', color: colors.text },
   jamoBox: {
     width: '100%', backgroundColor: '#FFF3E0', borderRadius: 16,
@@ -205,7 +242,15 @@ const styles = StyleSheet.create({
   jamoRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
   },
+  jamoColumn: {
+    alignItems: 'center',
+    gap: 2,
+  },
   jamoBlock: { alignItems: 'center', minWidth: 56 },
+  jamoFinalBlock: {
+    backgroundColor: '#FFE0B2', borderRadius: 8,
+    paddingHorizontal: spacing.xs, paddingVertical: 2,
+  },
   jamoResult: {
     backgroundColor: '#FFE0CC', borderRadius: 12,
     paddingHorizontal: spacing.sm, paddingVertical: 4,

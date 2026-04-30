@@ -9,9 +9,9 @@ import MemoryCardScreen from './src/screens/MemoryCardScreen';
 
 export type RootStackParamList = {
   Home: undefined;
-  Learn: { stage: 1 | 2 };
-  Practice: { stage: 1 | 2 };
-  SoundMatching: { stage: 1 | 2 };
+  Learn: { stage: 1 | 2 | 3 };
+  Practice: { stage: 1 | 2 | 3 };
+  SoundMatching: { stage: 1 | 2 | 3 };
   MemoryCard: undefined;
 };
 
