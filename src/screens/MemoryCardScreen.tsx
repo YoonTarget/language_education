@@ -24,8 +24,10 @@ type Card = {
   state: CardState;
 };
 
+const PAIRS_PER_ROUND = 6;
+
 function buildColumns(): { emojis: Card[]; words: Card[] } {
-  const pairs = shuffle(wordPairs);
+  const pairs = shuffle(wordPairs).slice(0, PAIRS_PER_ROUND);
   const emojis: Card[] = pairs.map((p, i) => ({
     id: `e-${i}`, type: 'emoji', word: p.word, emoji: p.emoji, sound: p.sound, state: 'idle',
   }));
@@ -46,6 +48,7 @@ export default function MemoryCardScreen({ navigation }: Props) {
 
   const allCards = [...emojis, ...words];
   const matchedCount = allCards.filter(c => c.state === 'matched').length / 2;
+  const totalPairs = emojis.length;
 
   const updateState = useCallback((ids: string[], state: CardState) => {
     setColumns(prev => ({
@@ -113,7 +116,7 @@ export default function MemoryCardScreen({ navigation }: Props) {
   }, [selectedEmoji, selectedWord, updateState]);
 
   useEffect(() => {
-    const total = wordPairs.length;
+    const total = totalPairs;
     if (matchedCount === total && total > 0) {
       speak('다 맞추셨어요! 대단해요!');
       setFinished(true);
@@ -121,7 +124,7 @@ export default function MemoryCardScreen({ navigation }: Props) {
         if (moves < p.memoryCardBestMoves) saveProgress({ memoryCardBestMoves: moves });
       });
     }
-  }, [matchedCount, moves]);
+  }, [matchedCount, moves, totalPairs]);
 
   const handleRetry = () => {
     setColumns(buildColumns());
@@ -153,7 +156,7 @@ export default function MemoryCardScreen({ navigation }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>← 나가기</Text>
         </TouchableOpacity>
-        <Text style={styles.movesText}>{matchedCount} / {wordPairs.length} 완성</Text>
+        <Text style={styles.movesText}>{matchedCount} / {totalPairs} 완성</Text>
       </View>
 
       <Text style={styles.instruction}>그림과 글자를 짝지어 눌러보세요</Text>
