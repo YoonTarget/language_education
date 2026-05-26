@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { Alert, View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, fontSize, spacing } from '../theme';
 import { loadProgress, Progress, isReviewDue, reviewDaysLeft } from '../utils/storage';
+import { areDailyRemindersScheduled, requestAndScheduleDailyReminders } from '../utils/notifications';
 import { RootStackParamList } from '../../App';
 
 type Props = {
@@ -11,13 +12,29 @@ type Props = {
 
 export default function HomeScreen({ navigation }: Props) {
   const [progress, setProgress] = useState<Progress | null>(null);
+  const [remindersOn, setRemindersOn] = useState(false);
+  const [checkingReminders, setCheckingReminders] = useState(false);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       loadProgress().then(setProgress);
+      areDailyRemindersScheduled().then(setRemindersOn);
     });
     return unsubscribe;
   }, [navigation]);
+
+  const handleEnableReminders = async () => {
+    setCheckingReminders(true);
+    const enabled = await requestAndScheduleDailyReminders();
+    setRemindersOn(enabled);
+    setCheckingReminders(false);
+
+    if (enabled) {
+      Alert.alert('알림을 켰어요', '매일 오전 9시와 오후 2시에 알려드릴게요.');
+    } else {
+      Alert.alert('알림을 켤 수 없어요', '휴대폰 설정에서 알림을 허용해 주세요.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -26,6 +43,26 @@ export default function HomeScreen({ navigation }: Props) {
           <Text style={styles.title}>할머니 한글</Text>
           <Text style={styles.subtitle}>영자 씨, 오늘도 함께 배워요 🌸</Text>
         </View>
+
+        <TouchableOpacity
+          style={[
+            styles.reminderCard,
+            remindersOn && styles.reminderCardOn,
+          ]}
+          onPress={handleEnableReminders}
+          activeOpacity={0.85}
+          disabled={checkingReminders}
+        >
+          <Text style={styles.reminderEmoji}>🔔</Text>
+          <View style={styles.reminderInfo}>
+            <Text style={styles.reminderTitle}>
+              {remindersOn ? '매일 알림 켜짐' : '매일 알림 켜기'}
+            </Text>
+            <Text style={styles.reminderDesc}>
+              {remindersOn ? '오전 9시 · 오후 2시' : '하루 두 번 한글 공부를 알려드려요'}
+            </Text>
+          </View>
+        </TouchableOpacity>
 
         <Text style={styles.sectionLabel}>배우기</Text>
 
@@ -256,5 +293,36 @@ const styles = StyleSheet.create({
   gameArrow: {
     fontSize: fontSize.button,
     color: colors.disabled,
+  },
+  reminderCard: {
+    backgroundColor: colors.cardBg,
+    borderRadius: 16,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+    marginBottom: spacing.lg,
+  },
+  reminderCardOn: {
+    borderColor: colors.success,
+    backgroundColor: '#E8F5E9',
+  },
+  reminderEmoji: {
+    fontSize: 36,
+    marginRight: spacing.md,
+  },
+  reminderInfo: {
+    flex: 1,
+  },
+  reminderTitle: {
+    fontSize: fontSize.body,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  reminderDesc: {
+    fontSize: fontSize.caption,
+    color: colors.textSoft,
   },
 });

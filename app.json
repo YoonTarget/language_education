@@ -25,6 +25,18 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
+    "notification": {
+      "color": "#FF7043"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#FF7043",
+          "defaultChannel": "daily-learning-reminders"
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     },
