@@ -16,6 +16,7 @@ export type WordPair = {
   word: string;
   emoji: string;
   sound: string;
+  category?: string;
 };
 
 // 1단계: 기본 모음 (ㅇ + 모음 = 음절, ㅇ은 묵음)
@@ -74,6 +75,21 @@ export const wordPairs: WordPair[] = [
   { word: '물', emoji: '💧', sound: '물' },
   { word: '밥', emoji: '🍚', sound: '밥' },
   { word: '화장실', emoji: '🚻', sound: '화장실' },
+  { word: '병원', emoji: '🏥', sound: '병원', category: '의료' },
+  { word: '의사', emoji: '🧑‍⚕️', sound: '의사', category: '의료' },
+  { word: '택시', emoji: '🚕', sound: '택시', category: '교통' },
+  { word: '기차', emoji: '🚆', sound: '기차', category: '교통' },
+  { word: '지하철', emoji: '🚇', sound: '지하철', category: '교통' },
+  { word: '국', emoji: '🥣', sound: '국', category: '음식' },
+  { word: '김치', emoji: '🥬', sound: '김치', category: '음식' },
+  { word: '라면', emoji: '🍜', sound: '라면', category: '음식' },
+  { word: '집', emoji: '🏠', sound: '집', category: '일상' },
+  { word: '문', emoji: '🚪', sound: '문', category: '일상' },
+  { word: '창문', emoji: '🪟', sound: '창문', category: '일상' },
+  { word: '전화', emoji: '☎️', sound: '전화', category: '일상' },
+  { word: '하나', emoji: '1️⃣', sound: '하나', category: '숫자/시간' },
+  { word: '오늘', emoji: '📅', sound: '오늘', category: '숫자/시간' },
+  { word: '내일', emoji: '➡️', sound: '내일', category: '숫자/시간' },
 ];
 
 export function getDistractors(target: SyllableItem, pool: SyllableItem[], count = 3): SyllableItem[] {
