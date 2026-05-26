@@ -15,6 +15,7 @@ export type Progress = {
 };
 
 const KEY = 'haelmoni_progress';
+const ONBOARDING_KEY = 'haelmoni_onboarding_done';
 
 const defaultProgress: Progress = {
   stage1Unlocked: true,
@@ -38,6 +39,22 @@ export async function saveProgress(progress: Partial<Progress>): Promise<void> {
   try {
     const current = await loadProgress();
     await AsyncStorage.setItem(KEY, JSON.stringify({ ...current, ...progress }));
+  } catch {
+    // storage failure is non-critical
+  }
+}
+
+export async function loadOnboardingDone(): Promise<boolean> {
+  try {
+    return await AsyncStorage.getItem(ONBOARDING_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export async function saveOnboardingDone(): Promise<void> {
+  try {
+    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
   } catch {
     // storage failure is non-critical
   }
